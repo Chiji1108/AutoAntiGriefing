@@ -1,3 +1,24 @@
+/*
+* <実装済計算ブロック>
+*
+* [GP]=+10×{
+* ×ブロックの種類 
+* ×人工ブロックか自然ブロック
+* ×自分が置いたか置いてないか 
+* ×プレイヤー新参度
+* ×ログインからの経過時間
+*  ×ブロック連続破壊度
+* ×ブロック破壊効率度 
+* ×ブロック破壊時被プレイヤー状態 
+* }
+*
+* GPが10000以上で荒らし判定
+*
+* ・[ブロック破壊時周辺人口密度]は集団荒らしに対応できないため、実装しません。
+* ・テーブルの自動作成は未実装です。
+*
+* */
+
 package me.chiji1108.spigot.autoantigriefing;
 
 import org.bukkit.Bukkit;
@@ -566,8 +587,6 @@ public class MySQL implements Listener {
         outError();
         return "error";
     }
-
-
 
     //ここからGP関連
     public void addGP(Player player, double gp) {
