@@ -1,0 +1,10 @@
+name: AutoAntiGriefing
+version: @version@
+main: me.chiji1108.spigot.autoantigriefing.AutoAntiGriefing
+authors: [Chiji1108]
+description: Auto Anti-Griefing Plugin
+
+commands:
+  gp:
+    usage: /<command>
+    descriptions: check my gp
