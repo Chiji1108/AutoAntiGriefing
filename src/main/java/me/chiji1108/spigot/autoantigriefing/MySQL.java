@@ -923,6 +923,4 @@ public class MySQL implements Listener {
         Bukkit.shutdown();
     }
 
-
 }
-
