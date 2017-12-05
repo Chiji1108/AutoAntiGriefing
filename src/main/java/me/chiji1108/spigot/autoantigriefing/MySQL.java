@@ -554,7 +554,7 @@ public class MySQL implements Listener {
             int b_id = block.getTypeId();
             int b_subid = block.getData();
             if (isAB(block)) {
-                String sql = "SELECT * FROM block_places WHERE world_id=? and X=? and Y=? and Z=? and block_id=? and block_subid=? ORDER BY time DESC LIMIT 1)";
+                String sql = "SELECT * FROM block_places WHERE world_id=? and X=? and Y=? and Z=? and block_id=? and block_subid=? ORDER BY time DESC LIMIT 1";
                 PreparedStatement statement = getConnection().prepareStatement(sql);
                 statement.setInt(1, world_id);
                 statement.setInt(2, X);
@@ -659,7 +659,7 @@ public class MySQL implements Listener {
             public void run() {
                 for (Player online: Bukkit.getOnlinePlayers()) {
                     int nowGP = callGP(online);
-                    int changeGP = 200;
+                    int changeGP = 100;
                     if(nowGP - changeGP < 0) {
                         setGP(online, 0);
                     } else {
@@ -689,7 +689,7 @@ public class MySQL implements Listener {
         );
 
         addGP(player, math_result);
-        plugin.getServer().broadcastMessage(ChatColor.RED + "------------------------" + mag_TypeOfBlock(e));
+        plugin.getServer().broadcastMessage(ChatColor.RED + "------------------------");
         plugin.getServer().broadcastMessage(ChatColor.RED + "  TypeOfBlock: " + mag_TypeOfBlock(e));
         plugin.getServer().broadcastMessage(ChatColor.RED + "  WhetherABorNB: " + mag_WhetherABorNB(e));
         plugin.getServer().broadcastMessage(ChatColor.RED + "  WhetherMine: " + mag_WhetherMine(e));
@@ -698,7 +698,7 @@ public class MySQL implements Listener {
         plugin.getServer().broadcastMessage(ChatColor.RED + "  Distance: " + mag_Distance(e));
         plugin.getServer().broadcastMessage(ChatColor.RED + "  ContinuousBreak: " + mag_ContinuousBreak(e));
         plugin.getServer().broadcastMessage(ChatColor.RED + "  EfficiencyBreak: " + mag_EfficiencyBreak(e));
-        if (callGP(player) > 200000) {
+        if (callGP(player) > 100000) {
             player.kickPlayer("GPが規定値を超えたためキックします");
         }
     }
@@ -709,6 +709,10 @@ public class MySQL implements Listener {
         switch (block.getType()) {
             case ENDER_CHEST:
                 return 3;
+            case DIRT:
+            case GRASS:
+            case STONE:
+                return 0.5;
             case CHEST:
             case FURNACE:
                 return 5;
@@ -757,7 +761,7 @@ public class MySQL implements Listener {
         long minutes = callElapsedTimeSinceLogin(player);
 
         if (minutes < 1) {
-            return 10;
+            return 7;
         } else if (minutes < 2) {
             return 5;
         } else if (minutes < 3) {
