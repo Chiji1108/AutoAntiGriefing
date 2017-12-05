@@ -883,11 +883,11 @@ public class MySQL implements Listener {
             long DiffSeconds = ( dateTimeTo - dateTimeFrom ) / 1000;
 
             if (DiffSeconds < 0.3) {
-                return 3;
-            } else if (DiffSeconds < 0.5) {
                 return 2;
+            } else if (DiffSeconds < 0.5) {
+                return 1.6;
             } else if (DiffSeconds < 1) {
-                return 1.4;
+                return 1.3;
             } else {
                 return 1;
             }
@@ -901,9 +901,9 @@ public class MySQL implements Listener {
         if(isAB(block) && callBreakTimes(player) >= 2 && !isPlacedByMe(event)) {
             int breakTimesIn10 = callBreakTimesFrom(player, 10);
             if (breakTimesIn10 > 20) {
-                return 10;
+                return 3;
             } else if (breakTimesIn10 > 16) {
-                return 5;
+                return 2.5;
             } else if (breakTimesIn10 > 12) {
                 return 2;
             } else if (breakTimesIn10 > 8) {
