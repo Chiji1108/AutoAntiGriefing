@@ -703,14 +703,12 @@ public class MySQL implements Listener {
         plugin.getServer().getConsoleSender().sendMessage(ChatColor.GREEN + name + "のGPが" + math_result + "増えました");
 
         int gp = callGP(player);
-        if (gp > 300000) {
+        if (gp > 50000) {
             player.kickPlayer("GPが規定値を超えたためキックします");
-        } else if (gp > 250000) {
+        } else if (gp > 42500) {
             plugin.getServer().broadcastMessage(ChatColor.YELLOW + name + ChatColor.RED + "は荒らしの可能性");
-        } else if (gp > 200000) {
+        } else if (gp > 35000) {
             plugin.getServer().broadcastMessage(ChatColor.YELLOW + "誰かが荒らしているかも？");
-        } else if (gp > 100000) {
-            plugin.getServer().broadcastMessage(ChatColor.YELLOW + name + "さんおはよう");
         }
     }
 
@@ -837,14 +835,14 @@ public class MySQL implements Listener {
             long dateTimeTo = callLatestBreakDateTime(player).getTime();
             long dateTimeFrom = callSecondBreakDateTime(player).getTime();
             // 差分の時間を算出します。
-            long DiffSeconds = ( dateTimeTo - dateTimeFrom ) / (1000 * 60 * 60);
+            long DiffSeconds = ( dateTimeTo - dateTimeFrom ) / 1000;
 
             if (DiffSeconds < 0.1) {
                 return 10;
             } else if (DiffSeconds < 0.5) {
                 return 2;
             } else if (DiffSeconds < 1) {
-                return 1.1;
+                return 1.4;
             } else {
                 return 1;
             }
@@ -866,7 +864,7 @@ public class MySQL implements Listener {
             } else if (breakTimesIn10 > 8) {
                 return 1.5;
             } else if (breakTimesIn10 > 4) {
-                return 1.1;
+                return 1.2;
             } else {
                 return 1;
             }
