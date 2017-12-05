@@ -21,10 +21,7 @@
 
 package me.chiji1108.spigot.autoantigriefing;
 
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -713,18 +710,65 @@ public class MySQL implements Listener {
     }
 
     public double mag_TypeOfBlock(BlockBreakEvent event) {
-        Block block = event.getBlock();
+        Material blockType = event.getBlock().getType();
 
-        switch (block.getType()) {
-            case ENDER_CHEST:
-                return 3;
+        switch (blockType) {
+            case WHEAT:
+            case CACTUS:
+            case SUGAR_CANE:
+            case SUGAR_CANE_BLOCK:
+            case SEEDS:
+            case BEETROOT_SEEDS:
+            case MELON_SEEDS:
+            case PUMPKIN_SEEDS:
+            case NETHER_WART_BLOCK:
+            case NETHER_WARTS:
+            case COCOA:
+            case CARROT:
+            case CARROT_ITEM:
+            case POTATO:
+            case POTATO_ITEM:
+            case CHORUS_PLANT:
+                return 0.1;
             case DIRT:
             case GRASS:
             case STONE:
+            case LOG:
+            case LOG_2:
                 return 0.5;
+            case ENDER_CHEST:
+            case IRON_DOOR:
+            case IRON_DOOR_BLOCK:
+            case STONE_BUTTON:
+            case WOOD_BUTTON:
+            case TRAPPED_CHEST:
+            case GOLD_PLATE:
+            case IRON_PLATE:
+            case STONE_PLATE:
+            case WOOD_PLATE:
+            case REDSTONE:
+            case REDSTONE_BLOCK:
+            case REDSTONE_COMPARATOR:
+            case REDSTONE_COMPARATOR_OFF:
+            case REDSTONE_COMPARATOR_ON:
+            case REDSTONE_LAMP_OFF:
+            case REDSTONE_LAMP_ON:
+            case REDSTONE_TORCH_OFF:
+            case REDSTONE_TORCH_ON:
+            case REDSTONE_WIRE:
+            case IRON_TRAPDOOR:
+                return 3;
             case CHEST:
             case FURNACE:
+            case SIGN:
                 return 5;
+            case COMMAND:
+            case COMMAND_CHAIN:
+            case COMMAND_REPEATING:
+            case COMMAND_MINECART:
+            case BARRIER:
+            case BEDROCK:
+                return 10;
             default:
                 return 1;
         }
