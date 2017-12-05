@@ -659,7 +659,7 @@ public class MySQL implements Listener {
             public void run() {
                 for (Player online: Bukkit.getOnlinePlayers()) {
                     int nowGP = callGP(online);
-                    int changeGP = 100;
+                    int changeGP = 150;
                     if(nowGP - changeGP < 0) {
                         setGP(online, 0);
                     } else {
