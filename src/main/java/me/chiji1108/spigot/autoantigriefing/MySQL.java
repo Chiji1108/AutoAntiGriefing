@@ -659,7 +659,7 @@ public class MySQL implements Listener {
             public void run() {
                 for (Player online: Bukkit.getOnlinePlayers()) {
                     int nowGP = callGP(online);
-                    int changeGP = 10;
+                    int changeGP = 200;
                     if(nowGP - changeGP < 0) {
                         setGP(online, 0);
                     } else {
@@ -689,6 +689,7 @@ public class MySQL implements Listener {
         );
 
         addGP(player, math_result);
+        plugin.getServer().broadcastMessage(ChatColor.RED + "------------------------" + mag_TypeOfBlock(e));
         plugin.getServer().broadcastMessage(ChatColor.RED + "  TypeOfBlock: " + mag_TypeOfBlock(e));
         plugin.getServer().broadcastMessage(ChatColor.RED + "  WhetherABorNB: " + mag_WhetherABorNB(e));
         plugin.getServer().broadcastMessage(ChatColor.RED + "  WhetherMine: " + mag_WhetherMine(e));
@@ -697,7 +698,7 @@ public class MySQL implements Listener {
         plugin.getServer().broadcastMessage(ChatColor.RED + "  Distance: " + mag_Distance(e));
         plugin.getServer().broadcastMessage(ChatColor.RED + "  ContinuousBreak: " + mag_ContinuousBreak(e));
         plugin.getServer().broadcastMessage(ChatColor.RED + "  EfficiencyBreak: " + mag_EfficiencyBreak(e));
-        if (callGP(player) > 10000) {
+        if (callGP(player) > 200000) {
             player.kickPlayer("GPが規定値を超えたためキックします");
         }
     }
