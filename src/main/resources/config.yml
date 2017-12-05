@@ -1,6 +1,6 @@
 MySQL:
   host: 'localhost'
   port: 3306
-  database: 'hogehoge'
+  database: 'autoantigriefing'
   username: 'root'
-  password: ''
+  password: 'root'
