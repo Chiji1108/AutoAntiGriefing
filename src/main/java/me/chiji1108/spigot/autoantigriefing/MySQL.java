@@ -675,6 +675,7 @@ public class MySQL implements Listener {
     public void MathOnBreakAndKick(BlockBreakEvent e) {
         addBreakLog(e); //callElapsedTimeSinceBreakを正常に作動させるため最初に
         Player player = e.getPlayer();
+        String name = player.getName();
 
         Double math_result = (
                 10
@@ -689,17 +690,27 @@ public class MySQL implements Listener {
         );
 
         addGP(player, math_result);
-        plugin.getServer().broadcastMessage(ChatColor.RED + "------------------------");
-        plugin.getServer().broadcastMessage(ChatColor.RED + "  TypeOfBlock: " + mag_TypeOfBlock(e));
-        plugin.getServer().broadcastMessage(ChatColor.RED + "  WhetherABorNB: " + mag_WhetherABorNB(e));
-        plugin.getServer().broadcastMessage(ChatColor.RED + "  WhetherMine: " + mag_WhetherMine(e));
-        plugin.getServer().broadcastMessage(ChatColor.RED + "  WhetherNewPlayer: " + mag_WhetherNewPlayer(e));
-        plugin.getServer().broadcastMessage(ChatColor.RED + "  ElapseTime: " + mag_ElapsedTime(e));
-        plugin.getServer().broadcastMessage(ChatColor.RED + "  Distance: " + mag_Distance(e));
-        plugin.getServer().broadcastMessage(ChatColor.RED + "  ContinuousBreak: " + mag_ContinuousBreak(e));
-        plugin.getServer().broadcastMessage(ChatColor.RED + "  EfficiencyBreak: " + mag_EfficiencyBreak(e));
-        if (callGP(player) > 100000) {
+        plugin.getServer().getConsoleSender().sendMessage(ChatColor.GREEN + "-< Chiji Plugin >---------");
+        plugin.getServer().getConsoleSender().sendMessage(ChatColor.GREEN + "--<" + name + ">--");
+        plugin.getServer().getConsoleSender().sendMessage(ChatColor.GREEN + "  TypeOfBlock: " + mag_TypeOfBlock(e));
+        plugin.getServer().getConsoleSender().sendMessage(ChatColor.GREEN + "  WhetherABorNB: " + mag_WhetherABorNB(e));
+        plugin.getServer().getConsoleSender().sendMessage(ChatColor.GREEN + "  WhetherMine: " + mag_WhetherMine(e));
+        plugin.getServer().getConsoleSender().sendMessage(ChatColor.GREEN + "  WhetherNewPlayer: " + mag_WhetherNewPlayer(e));
+        plugin.getServer().getConsoleSender().sendMessage(ChatColor.GREEN + "  ElapseTime: " + mag_ElapsedTime(e));
+        plugin.getServer().getConsoleSender().sendMessage(ChatColor.GREEN + "  Distance: " + mag_Distance(e));
+        plugin.getServer().getConsoleSender().sendMessage(ChatColor.GREEN + "  ContinuousBreak: " + mag_ContinuousBreak(e));
+        plugin.getServer().getConsoleSender().sendMessage(ChatColor.GREEN + "  EfficiencyBreak: " + mag_EfficiencyBreak(e));
+        plugin.getServer().getConsoleSender().sendMessage(ChatColor.GREEN + name + "のGPが" + math_result + "増えました");
+
+        int gp = callGP(player);
+        if (gp > 300000) {
             player.kickPlayer("GPが規定値を超えたためキックします");
+        } else if (gp > 250000) {
+            plugin.getServer().broadcastMessage(ChatColor.YELLOW + name + ChatColor.RED + "は荒らしの可能性");
+        } else if (gp > 200000) {
+            plugin.getServer().broadcastMessage(ChatColor.YELLOW + "誰かが荒らしているかも？");
+        } else if (gp > 100000) {
+            plugin.getServer().broadcastMessage(ChatColor.YELLOW + name + "さんおはよう");
         }
     }
 
@@ -724,7 +735,7 @@ public class MySQL implements Listener {
     public double mag_WhetherABorNB(BlockBreakEvent event) {
         Block block = event.getBlock();
         if (isAB(block)) {
-            return 5;
+            return 3;
         }
         return 1;
     }
