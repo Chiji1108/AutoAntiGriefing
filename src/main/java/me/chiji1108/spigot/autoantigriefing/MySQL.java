@@ -723,6 +723,7 @@ public class MySQL implements Listener {
             case PUMPKIN_SEEDS:
             case NETHER_WART_BLOCK:
             case NETHER_WARTS:
+            case CROPS:
             case COCOA:
             case CARROT:
             case CARROT_ITEM:
@@ -881,8 +882,8 @@ public class MySQL implements Listener {
             // 差分の時間を算出します。
             long DiffSeconds = ( dateTimeTo - dateTimeFrom ) / 1000;
 
-            if (DiffSeconds < 0.1) {
-                return 10;
+            if (DiffSeconds < 0.3) {
+                return 3;
             } else if (DiffSeconds < 0.5) {
                 return 2;
             } else if (DiffSeconds < 1) {
