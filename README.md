@@ -3,7 +3,7 @@
 *コンピュータが*__自動__*でGriefing判定する時代だから。*  
 
 Minecraft Spigot ver1.12.*  
-**The BEST Anti-Griefing Plugin** (by Chiji1108) 
+**The BEST Anti-Griefing Plugin** (by Chiji1108)
 
 
 - **本来ゲームにはない作業は追加しません**  
@@ -38,4 +38,5 @@ Minecraft Spigot ver1.12.*
 
 ## 卒業研究
 このプラグインは卒業研究によって作られました  
+対応できないGriefingが多々あり、実用化はオススメできません。  
 卒研での評価アンケートは[こちら](https://goo.gl/forms/Yki0quTS91Jet4vm2)
