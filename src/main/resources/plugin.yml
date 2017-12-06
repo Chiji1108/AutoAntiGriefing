@@ -6,5 +6,5 @@ description: Auto Anti-Griefing Plugin
 
 commands:
   gp:
-    usage: /<command>
-    descriptions: check my gp
+    usage: /<command> player
+    descriptions: check my or player's GriefingPoint
