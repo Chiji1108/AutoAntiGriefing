@@ -6,7 +6,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 public final class AutoAntiGriefing extends JavaPlugin {
 
     public static String prefix = ChatColor.GRAY + "[" + ChatColor.BOLD + "" + ChatColor.RED + "AAG" + ChatColor.RESET + "" + ChatColor.GRAY + "] " + ChatColor.GREEN + "";
-    private String version = "1.1";
+    private String version = "1.0";
 
     MySQL mysql = new MySQL();
 

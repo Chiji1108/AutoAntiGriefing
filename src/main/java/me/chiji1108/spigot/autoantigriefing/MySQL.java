@@ -22,9 +22,9 @@ import java.sql.*;
 import java.time.LocalTime;
 
 public class MySQL implements Listener,CommandExecutor {
-    public Connection connection;
-    public String host, database, username, password, users, logins, worlds, block_places, block_breaks;
-    public int port;
+    private Connection connection;
+    private String host, database, username, password, users, logins, worlds, block_places, block_breaks;
+    private int port;
     public String cmd1 = "gp";
 
     private Plugin plugin = AutoAntiGriefing.getPlugin(AutoAntiGriefing.class);

@@ -1,4 +1,5 @@
 # AutoAntiGriefing
+開発したGriefing判定アルゴリズムとは
 <p><実装済計算ブロック><br>
 <br>
 [GP]=+10×{<br>
