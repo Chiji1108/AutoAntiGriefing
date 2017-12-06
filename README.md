@@ -1,7 +1,8 @@
 # AutoAntiGriefing
 *モデレータなんていらない。*  
-*コンピュータが*__自動__*でGriefingを判定する時代だから。* 
+*コンピュータが*__自動__*でGriefing判定する時代だから。*  
 
+Minecraft Spigot ver1.12.*  
 **The BEST Anti-Griefing Plugin** (by Chiji1108) 
 
 
