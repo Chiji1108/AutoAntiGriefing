@@ -1,28 +1,14 @@
 /*
-* <実装済計算ブロック>
-*
-* [GP]=+10×{
-* ×ブロックの種類 
-* ×人工ブロックか自然ブロック
-* ×自分が置いたか置いてないか 
-* ×プレイヤー新参度
-* ×ログインからの経過時間
-*  ×ブロック連続破壊度
-* ×ブロック破壊効率度 
-* ×ブロック破壊時被プレイヤー状態 
-* }
-*
-* GPが10000以上で荒らし判定
-*
-* ・[ブロック破壊時周辺人口密度]は集団荒らしに対応できないため、実装しません。
-* ・テーブルの自動作成は未実装です。
-*
+* 詳細はREADME.mdにて
 * */
 
 package me.chiji1108.spigot.autoantigriefing;
 
 import org.bukkit.*;
 import org.bukkit.block.Block;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -35,10 +21,11 @@ import org.bukkit.scheduler.BukkitRunnable;
 import java.sql.*;
 import java.time.LocalTime;
 
-public class MySQL implements Listener {
+public class MySQL implements Listener,CommandExecutor {
     public Connection connection;
-    public String host, database, username, password, users, worlds, block_places, logins, block_breaks;
+    public String host, database, username, password, users, logins, worlds, block_places, block_breaks;
     public int port;
+    public String cmd1 = "gp";
 
     private Plugin plugin = AutoAntiGriefing.getPlugin(AutoAntiGriefing.class);
 
@@ -51,27 +38,39 @@ public class MySQL implements Listener {
         username = plugin.getConfig().getString("MySQL.username");
         password = plugin.getConfig().getString("MySQL.password");
         users = "users";
+        logins = "logins";
         worlds = "worlds";
         block_places = "block_places";
-        logins = "logins";
         block_breaks = "block_breaks";
+    }
 
+    //ここからMySQLに関するメソッド
+    synchronized public void openConnection() {
         try {
-            openConnection();
-        } catch (SQLException e) {
-            e.printStackTrace();
+            if (getConnection() != null && !getConnection().isClosed()) {
+                return;
+            }
+            Class.forName("com.mysql.jdbc.Driver");
+            setConnection(DriverManager.getConnection("jdbc:mysql://" + this.host + ":" + this.port + "/" + this.database, this.username, this.password));
+            plugin.getServer().getConsoleSender().sendMessage(AutoAntiGriefing.prefix + "MySQLのデータベースに接続しました: " + ChatColor.WHITE + this.database);
         } catch (ClassNotFoundException e) {
+            plugin.getServer().getConsoleSender().sendMessage(AutoAntiGriefing.prefix + ChatColor.RED + "JDBCドライバのロードに失敗しました");
+            e.printStackTrace();
+        } catch (SQLException e) {
+            plugin.getServer().getConsoleSender().sendMessage(AutoAntiGriefing.prefix + ChatColor.RED + "MySQLに接続できませんでした。");
             e.printStackTrace();
         }
     }
 
-    synchronized public void openConnection() throws SQLException, ClassNotFoundException {
-        if (getConnection() != null && !getConnection().isClosed()) {
-            return;
+    public void closeConnection() {
+        try {
+            if (getConnection() != null && !getConnection().isClosed()) {
+                getConnection().close();
+                plugin.getServer().getConsoleSender().sendMessage(AutoAntiGriefing.prefix + "MySQLのデータベースから切断します");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
-        Class.forName("com.mysql.jdbc.Driver");
-        setConnection(DriverManager.getConnection("jdbc:mysql://" + this.host + ":" + this.port + "/" + this.database, this.username, this.password));
-        plugin.getServer().broadcastMessage(ChatColor.GREEN + "MySQL connected!");
     }
 
     public Connection getConnection() {
@@ -82,6 +81,128 @@ public class MySQL implements Listener {
         this.connection = connection;
     }
 
+    public void createTables() {
+        try {
+            String sql =
+                    "-- Server version\t5.7.19\n" +
+                    "\n" +
+                    "/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;\n" +
+                    "/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;\n" +
+                    "/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;\n" +
+                    "/*!40101 SET NAMES utf8 */;\n" +
+                    "/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;\n" +
+                    "/*!40103 SET TIME_ZONE='+00:00' */;\n" +
+                    "/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;\n" +
+                    "/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;\n" +
+                    "/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;\n" +
+                    "/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;\n" +
+                    "\n" +
+                    "--\n" +
+                    "-- Table structure for table `block_breaks`\n" +
+                    "--\n" +
+                    "\n" +
+                    "/*!40101 SET @saved_cs_client     = @@character_set_client */;\n" +
+                    "/*!40101 SET character_set_client = utf8 */;\n" +
+                    "CREATE TABLE IF NOT EXISTS `block_breaks` (\n" +
+                    "  `id` int(11) NOT NULL AUTO_INCREMENT,\n" +
+                    "  `user_id` int(11) NOT NULL,\n" +
+                    "  `world_id` int(11) NOT NULL,\n" +
+                    "  `X` int(11) NOT NULL,\n" +
+                    "  `Y` int(11) NOT NULL,\n" +
+                    "  `Z` int(11) NOT NULL,\n" +
+                    "  `block_id` int(11) NOT NULL,\n" +
+                    "  `block_subid` int(11) NOT NULL,\n" +
+                    "  `time` datetime NOT NULL,\n" +
+                    "  PRIMARY KEY (`id`),\n" +
+                    "  UNIQUE KEY `id_UNIQUE` (`id`)\n" +
+                    ") ENGINE=InnoDB DEFAULT CHARSET=utf8;\n" +
+                    "/*!40101 SET character_set_client = @saved_cs_client */;\n" +
+                    "\n" +
+                    "--\n" +
+                    "-- Table structure for table `block_places`\n" +
+                    "--\n" +
+                    "\n" +
+                    "/*!40101 SET @saved_cs_client     = @@character_set_client */;\n" +
+                    "/*!40101 SET character_set_client = utf8 */;\n" +
+                    "CREATE TABLE IF NOT EXISTS `block_places` (\n" +
+                    "  `id` int(11) NOT NULL AUTO_INCREMENT,\n" +
+                    "  `user_id` int(11) NOT NULL,\n" +
+                    "  `world_id` int(11) NOT NULL,\n" +
+                    "  `x` int(11) NOT NULL,\n" +
+                    "  `y` int(11) NOT NULL,\n" +
+                    "  `z` int(11) NOT NULL,\n" +
+                    "  `block_id` int(11) NOT NULL,\n" +
+                    "  `block_subid` int(11) NOT NULL,\n" +
+                    "  `time` datetime NOT NULL,\n" +
+                    "  PRIMARY KEY (`id`),\n" +
+                    "  UNIQUE KEY `id_UNIQUE` (`id`)\n" +
+                    ") ENGINE=InnoDB DEFAULT CHARSET=utf8;\n" +
+                    "/*!40101 SET character_set_client = @saved_cs_client */;\n" +
+                    "\n" +
+                    "--\n" +
+                    "-- Table structure for table `logins`\n" +
+                    "--\n" +
+                    "\n" +
+                    "/*!40101 SET @saved_cs_client     = @@character_set_client */;\n" +
+                    "/*!40101 SET character_set_client = utf8 */;\n" +
+                    "CREATE TABLE IF NOT EXISTS `logins` (\n" +
+                    "  `id` int(11) NOT NULL AUTO_INCREMENT,\n" +
+                    "  `user_id` int(11) NOT NULL,\n" +
+                    "  `DateTime` datetime NOT NULL,\n" +
+                    "  PRIMARY KEY (`id`),\n" +
+                    "  UNIQUE KEY `id_UNIQUE` (`id`)\n" +
+                    ") ENGINE=InnoDB DEFAULT CHARSET=utf8;\n" +
+                    "/*!40101 SET character_set_client = @saved_cs_client */;\n" +
+                    "\n" +
+                    "--\n" +
+                    "-- Table structure for table `users`\n" +
+                    "--\n" +
+                    "\n" +
+                    "/*!40101 SET @saved_cs_client     = @@character_set_client */;\n" +
+                    "/*!40101 SET character_set_client = utf8 */;\n" +
+                    "CREATE TABLE IF NOT EXISTS `users` (\n" +
+                    "  `id` int(11) NOT NULL AUTO_INCREMENT,\n" +
+                    "  `uuid` varchar(255) NOT NULL,\n" +
+                    "  `name` varchar(255) NOT NULL,\n" +
+                    "  `GP` double unsigned NOT NULL,\n" +
+                    "  `login_times` int(11) NOT NULL,\n" +
+                    "  PRIMARY KEY (`id`),\n" +
+                    "  UNIQUE KEY `id_UNIQUE` (`id`),\n" +
+                    "  UNIQUE KEY `uuid_UNIQUE` (`uuid`)\n" +
+                    ") ENGINE=InnoDB DEFAULT CHARSET=utf8;\n" +
+                    "/*!40101 SET character_set_client = @saved_cs_client */;\n" +
+                    "\n" +
+                    "--\n" +
+                    "-- Table structure for table `worlds`\n" +
+                    "--\n" +
+                    "\n" +
+                    "/*!40101 SET @saved_cs_client     = @@character_set_client */;\n" +
+                    "/*!40101 SET character_set_client = utf8 */;\n" +
+                    "CREATE TABLE IF NOT EXISTS `worlds` (\n" +
+                    "  `id` int(11) NOT NULL AUTO_INCREMENT,\n" +
+                    "  `name` varchar(45) NOT NULL,\n" +
+                    "  PRIMARY KEY (`id`),\n" +
+                    "  UNIQUE KEY `id_UNIQUE` (`id`)\n" +
+                    ") ENGINE=InnoDB DEFAULT CHARSET=utf8;\n" +
+                    "/*!40101 SET character_set_client = @saved_cs_client */;\n" +
+                    "/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;\n" +
+                    "\n" +
+                    "/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;\n" +
+                    "/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;\n" +
+                    "/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;\n" +
+                    "/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;\n" +
+                    "/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;\n" +
+                    "/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;\n" +
+                    "/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;";
+
+            Statement statement = getConnection().createStatement();
+            statement.executeUpdate(sql);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    //ここからデータベース操作
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
@@ -92,36 +213,11 @@ public class MySQL implements Listener {
         createWorld(w);
     }
 
-    public boolean playerExists(Player player) {
-        try {
-            String name = player.getName();
-            String uuid = player.getUniqueId().toString();
-
-            String sql = "SELECT * FROM " + users + " WHERE UUID=?";
-            PreparedStatement statement = getConnection().prepareStatement(sql);
-            statement.setString(1, uuid);
-            ResultSet results = statement.executeQuery();
-
-            if (results.next()) { //プレイヤーが存在する時
-                plugin.getServer().broadcastMessage(ChatColor.YELLOW + "Player Found : " + name);
-                return true;
-            } else {
-                plugin.getServer().broadcastMessage(ChatColor.RED + "Player NOT Found : " + name);
-                return false;
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        outError();
-        return false;
-    }
-
     public void createPlayer(Player player) {
         try {
-            String name = player.getName();
-            String uuid = player.getUniqueId().toString();
-
             if (!(playerExists(player))) { //そのプレイヤーがいない時
+                String name = player.getName();
+                String uuid = player.getUniqueId().toString();
                 String sql = "INSERT INTO " + users + " (uuid,name,GP,login_times) VALUES (?,?,?,?)";
                 PreparedStatement statement = getConnection().prepareStatement(sql);
                 statement.setString(1, uuid);
@@ -129,11 +225,8 @@ public class MySQL implements Listener {
                 statement.setDouble(3, 0);
                 statement.setInt(4, 0);
                 statement.executeUpdate();
-                plugin.getServer().broadcastMessage(ChatColor.GREEN + "初回ログインのためデータを作りました : " + name);
-            } else {
-
+                plugin.getServer().getConsoleSender().sendMessage(AutoAntiGriefing.prefix + "初回ログインのためプレイヤーデータを作成しました: " + ChatColor.WHITE + name);
             }
-
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -149,13 +242,13 @@ public class MySQL implements Listener {
             PreparedStatement statement1 = getConnection().prepareStatement(sql1);
             statement1.setString(1, uuid);
             statement1.executeUpdate();
-            plugin.getServer().broadcastMessage(ChatColor.GREEN + "ログイン回数を+1しました : " + name);
+            plugin.getServer().getConsoleSender().sendMessage(AutoAntiGriefing.prefix + "ログイン回数を+1しました: " + ChatColor.WHITE + name);
 
             String sql2 = "INSERT INTO " + logins + " (user_id,DateTime) VALUES (?,now())";
             PreparedStatement statement2 = getConnection().prepareStatement(sql2);
             statement2.setInt(1, user_id);
             statement2.executeUpdate();
-            plugin.getServer().broadcastMessage(ChatColor.GREEN +  "ログインした現在の時間を記録しました: " + name);
+            plugin.getServer().getConsoleSender().sendMessage(AutoAntiGriefing.prefix + "ログインした現在の時間を記録しました: " +ChatColor.WHITE + name);
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -178,38 +271,12 @@ public class MySQL implements Listener {
                     PreparedStatement statement = getConnection().prepareStatement(sql);
                     statement.setInt(1, user_id);
                     statement.executeUpdate();
-                    plugin.getServer().broadcastMessage(ChatColor.RED + "1分以内の再ログインのためログイン回数を-1しました : " + name);
+                    plugin.getServer().getConsoleSender().sendMessage(AutoAntiGriefing.prefix + ChatColor.YELLOW + "1分以内の再ログインのためログイン回数を-1しました : " + ChatColor.WHITE + name);
                 }
-
-
-            }
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public boolean worldsExists(World world) {
-        try {
-            String name = world.getName();
-
-            String sql = "SELECT * FROM " + worlds + " WHERE name=?";
-            PreparedStatement statement = getConnection().prepareStatement(sql);
-            statement.setString(1, name);
-            ResultSet results = statement.executeQuery();
-
-            if (results.next()) { //ワールドが存在する時
-                plugin.getServer().broadcastMessage(ChatColor.YELLOW + "World Found : " + name);
-                return true;
-            } else {
-                plugin.getServer().broadcastMessage(ChatColor.RED + "World NOT Found : " + name);
-                return false;
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        outError();
-        return false;
     }
 
     public void createWorld(World world) {
@@ -221,7 +288,7 @@ public class MySQL implements Listener {
                 PreparedStatement statement = getConnection().prepareStatement(sql);
                 statement.setString(1, name);
                 statement.executeUpdate();
-                plugin.getServer().broadcastMessage(ChatColor.GREEN + "World Inserted : " + name);
+                plugin.getServer().getConsoleSender().sendMessage(AutoAntiGriefing.prefix + "初回ロードのためワールドデータを作成しました: " + ChatColor.WHITE + name);
             }
 
         } catch (SQLException e) {
@@ -288,6 +355,54 @@ public class MySQL implements Listener {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    //ここから呼び出し
+    public boolean playerExists(Player player) {
+        try {
+            String name = player.getName();
+            String uuid = player.getUniqueId().toString();
+
+            String sql = "SELECT * FROM " + users + " WHERE UUID=?";
+            PreparedStatement statement = getConnection().prepareStatement(sql);
+            statement.setString(1, uuid);
+            ResultSet results = statement.executeQuery();
+
+            if (results.next()) { //プレイヤーが存在する時
+                plugin.getServer().getConsoleSender().sendMessage(AutoAntiGriefing.prefix + "プレイヤーが見つかりました: " + ChatColor.WHITE + name);
+                return true;
+            } else {
+                plugin.getServer().getConsoleSender().sendMessage(AutoAntiGriefing.prefix + ChatColor.YELLOW + "プレイヤーが見つかりません: " + ChatColor.WHITE + name);
+                return false;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        outError();
+        return false;
+    }
+
+    public boolean worldsExists(World world) {
+        try {
+            String name = world.getName();
+
+            String sql = "SELECT * FROM " + worlds + " WHERE name=?";
+            PreparedStatement statement = getConnection().prepareStatement(sql);
+            statement.setString(1, name);
+            ResultSet results = statement.executeQuery();
+
+            if (results.next()) { //ワールドが存在する時
+                plugin.getServer().getConsoleSender().sendMessage(AutoAntiGriefing.prefix + "ワールドが見つかりました: " + ChatColor.WHITE + name);
+                return true;
+            } else {
+                plugin.getServer().getConsoleSender().sendMessage(AutoAntiGriefing.prefix + ChatColor.YELLOW + "ワールドが見つかりません: " + ChatColor.WHITE + name);
+                return false;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        outError();
+        return false;
     }
 
     public int callUsersId(Player player) {
@@ -618,7 +733,7 @@ public class MySQL implements Listener {
 
     public void checkGP(Player player) {
         try {
-            String name = player.getName();
+            String name = player.getDisplayName();
             int user_id = callUsersId(player);
 
             String sql = "SELECT * FROM " + users + " WHERE id=?";
@@ -626,7 +741,7 @@ public class MySQL implements Listener {
             statement.setInt(1, user_id);
             ResultSet results = statement.executeQuery();
             results.next();
-            plugin.getServer().broadcastMessage(ChatColor.RED + name + "の現在のGPは" + results.getInt("GP") + "です。");
+            plugin.getServer().broadcastMessage(AutoAntiGriefing.prefix + name + "の現在のGPは" + results.getInt("GP") + "です。");
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -665,6 +780,57 @@ public class MySQL implements Listener {
                 }
             }
         }.runTaskTimerAsynchronously(plugin, 0, 100);
+    }
+
+    //ここからコマンド
+    @Override
+    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        //gpコマンドの場合
+        if (command.getName().equalsIgnoreCase(cmd1)) {
+            //プレイヤー送信の場合
+            if (sender instanceof Player) {
+                Player senderPlayer = (Player) sender;
+                //略の場合
+                if (args.length == 0) {
+                    int gp = callGP(senderPlayer);
+                    String name = senderPlayer.getName();
+                    senderPlayer.sendMessage(AutoAntiGriefing.prefix + ChatColor.WHITE + name + ChatColor.GREEN + "の現在のGPは" + ChatColor.WHITE + gp + ChatColor.GREEN + "です。");
+                    return true;
+                //略以外の場合
+                } else if (args.length == 1) {
+                    for (OfflinePlayer targetPlayer: Bukkit.getOfflinePlayers()) {
+                        String name = targetPlayer.getName();
+                        if (args[0].equalsIgnoreCase(name)) {
+                            int gp = callGP(targetPlayer.getPlayer());
+                            senderPlayer.sendMessage(AutoAntiGriefing.prefix + ChatColor.WHITE + name + ChatColor.GREEN + "の現在のGPは" + ChatColor.WHITE + gp + ChatColor.GREEN + "です。");
+                            return true;
+                        } else {
+                            senderPlayer.sendMessage(AutoAntiGriefing.prefix + ChatColor.YELLOW + "そのプレイヤーは存在しません");
+                            return true;
+                        }
+                    }
+                }
+            // サーバーコマンドの場合
+            } else {
+                if (args.length == 0) {
+                    sender.sendMessage(AutoAntiGriefing.prefix + "このコマンドはプレイヤーしか使えません");
+                    return true;
+                } else if (args.length == 1) {
+                    for (OfflinePlayer targetPlayer: Bukkit.getOfflinePlayers()) {
+                        String name = targetPlayer.getName();
+                        if (args[0].equalsIgnoreCase(name)) {
+                            int gp = callGP(targetPlayer.getPlayer());
+                            sender.sendMessage(AutoAntiGriefing.prefix + ChatColor.WHITE + name + ChatColor.GREEN + "の現在のGPは" + ChatColor.WHITE + gp + ChatColor.GREEN + "です。");
+                            return true;
+                        } else {
+                            sender.sendMessage(AutoAntiGriefing.prefix + ChatColor.YELLOW + "そのプレイヤーは存在しません");
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     //ここから計算ブロック
@@ -920,6 +1086,11 @@ public class MySQL implements Listener {
     //例外処理
     public void outError() {
         System.out.printf("エラー");
+        try {
+            getConnection().close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
         Bukkit.shutdown();
     }
 
