@@ -1,5 +1,5 @@
 /*
-* 詳細はREADME.mdにて
+* プログラミング初心者なので悪しからず
 * */
 
 package me.chiji1108.spigot.autoantigriefing;
@@ -853,25 +853,27 @@ public class MySQL implements Listener,CommandExecutor {
         );
 
         addGP(player, math_result);
-        plugin.getServer().getConsoleSender().sendMessage(ChatColor.GREEN + "-< Chiji Plugin >---------");
-        plugin.getServer().getConsoleSender().sendMessage(ChatColor.GREEN + "--<" + name + ">--");
-        plugin.getServer().getConsoleSender().sendMessage(ChatColor.GREEN + "  TypeOfBlock: " + mag_TypeOfBlock(e));
-        plugin.getServer().getConsoleSender().sendMessage(ChatColor.GREEN + "  WhetherABorNB: " + mag_WhetherABorNB(e));
-        plugin.getServer().getConsoleSender().sendMessage(ChatColor.GREEN + "  WhetherMine: " + mag_WhetherMine(e));
-        plugin.getServer().getConsoleSender().sendMessage(ChatColor.GREEN + "  WhetherNewPlayer: " + mag_WhetherNewPlayer(e));
-        plugin.getServer().getConsoleSender().sendMessage(ChatColor.GREEN + "  ElapseTime: " + mag_ElapsedTime(e));
-        plugin.getServer().getConsoleSender().sendMessage(ChatColor.GREEN + "  Distance: " + mag_Distance(e));
-        plugin.getServer().getConsoleSender().sendMessage(ChatColor.GREEN + "  ContinuousBreak: " + mag_ContinuousBreak(e));
-        plugin.getServer().getConsoleSender().sendMessage(ChatColor.GREEN + "  EfficiencyBreak: " + mag_EfficiencyBreak(e));
-        plugin.getServer().getConsoleSender().sendMessage(ChatColor.GREEN + name + "のGPが" + math_result + "増えました");
+
+        /*plugin.getServer().getConsoleSender().sendMessage(AutoAntiGriefing.prefix + "-< Chiji Plugin >---------");
+        plugin.getServer().getConsoleSender().sendMessage(AutoAntiGriefing.prefix + "--<" + name + ">--");
+        plugin.getServer().getConsoleSender().sendMessage(AutoAntiGriefing.prefix + "  TypeOfBlock: " + mag_TypeOfBlock(e));
+        plugin.getServer().getConsoleSender().sendMessage(AutoAntiGriefing.prefix + "  WhetherABorNB: " + mag_WhetherABorNB(e));
+        plugin.getServer().getConsoleSender().sendMessage(AutoAntiGriefing.prefix + "  WhetherMine: " + mag_WhetherMine(e));
+        plugin.getServer().getConsoleSender().sendMessage(AutoAntiGriefing.prefix + "  WhetherNewPlayer: " + mag_WhetherNewPlayer(e));
+        plugin.getServer().getConsoleSender().sendMessage(AutoAntiGriefing.prefix + "  ElapseTime: " + mag_ElapsedTime(e));
+        plugin.getServer().getConsoleSender().sendMessage(AutoAntiGriefing.prefix + "  Distance: " + mag_Distance(e));
+        plugin.getServer().getConsoleSender().sendMessage(AutoAntiGriefing.prefix + "  ContinuousBreak: " + mag_ContinuousBreak(e));
+        plugin.getServer().getConsoleSender().sendMessage(AutoAntiGriefing.prefix + "  EfficiencyBreak: " + mag_EfficiencyBreak(e));
+        plugin.getServer().getConsoleSender().sendMessage(AutoAntiGriefing.prefix + name + "のGPが" + math_result + "増えました");*/
 
         int gp = callGP(player);
         if (gp > 50000) {
-            player.kickPlayer("GPが規定値を超えたためキックします");
+            Bukkit.getBanList(BanList.Type.NAME).addBan(player.getName(), "[AAG] Griefingと判定されたためBANしました", null, null);
+            plugin.getServer().broadcastMessage(AutoAntiGriefing.prefix + ChatColor.WHITE + name + ChatColor.RED + "のGPが規定値を超えたためBANしました");
         } else if (gp > 42500) {
-            plugin.getServer().broadcastMessage(ChatColor.YELLOW + name + ChatColor.RED + "は荒らしの可能性");
+            plugin.getServer().broadcastMessage(AutoAntiGriefing.prefix + ChatColor.WHITE + name + ChatColor.YELLOW + "は荒らしの可能性があります");
         } else if (gp > 35000) {
-            plugin.getServer().broadcastMessage(ChatColor.YELLOW + "誰かが荒らしているかも？");
+            plugin.getServer().broadcastMessage(AutoAntiGriefing.prefix + ChatColor.YELLOW + "誰かが荒らしているかも？");
         }
     }
 
